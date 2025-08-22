@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>stick.wtf</title>
+  <meta name="description" content="stick.wtf – brown modern stick theme with animated title" />
+  <meta property="og:title" content="stick.wtf" />
+  <meta property="og:description" content="A minimalist brown, stick-inspired splash page." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#4a2e22" />
+  <style>
+    :root {
+      --bg-0: #1e140f;
+      --bg-1: #2a1b13;
+      --bg-2: #3a241a;
+      --branch: #5a3c2e;
+      --branch-light: #8b6a50;
+      --line: #6e4f3b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+      color: #fff;
+      background:
+        radial-gradient(1200px 800px at 70% 20%, rgba(255,255,255,0.03), rgba(0,0,0,0) 60%),
+        radial-gradient(900px 600px at 20% 80%, rgba(255,255,255,0.03), rgba(0,0,0,0) 55%),
+        linear-gradient(135deg, var(--bg-0), var(--bg-1) 55%, var(--bg-2));
+      overflow: hidden;
+    }
+
+    /* Background stick animation */
+    .sticks-bg { position: fixed; inset: 0; pointer-events: none; opacity: .35; filter: blur(.2px) contrast(1.1); }
+    .stick-piece {
+      position: absolute; width: 1.5px; height: var(--len, 90px); background: linear-gradient(var(--line), #4d382a);
+      border-radius: 1px; transform-origin: center calc(100% + 20px);
+      animation: sway calc(8s + var(--delay,0s)) ease-in-out infinite;
+    }
+    @keyframes sway {
+      0%   { transform: translate(var(--x), var(--y)) rotate(calc(var(--rot) - 4deg)); }
+      50%  { transform: translate(calc(var(--x) + 2px), calc(var(--y) - 1px)) rotate(calc(var(--rot) + 4deg)); }
+      100% { transform: translate(var(--x), var(--y)) rotate(calc(var(--rot) - 4deg)); }
+    }
+
+    .center { position: fixed; inset: 0; display: grid; place-items: center; padding: 5vmin; }
+
+    .tg {
+      position: fixed; right: 18px; bottom: 18px;
+      background: linear-gradient(180deg, #8a6a52, #6e4f3b);
+      color: #fff; text-decoration: none; font-weight: 600;
+      padding: 12px 16px; border-radius: 999px;
+    }
+
+    .title-wrap { width: min(95vw, 1400px); }
+    svg { width: 100%; height: auto; display: block; }
+
+    .title {
+      fill: none;
+      stroke: var(--branch);
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 18px;
+      font-weight: 900;
+      paint-order: stroke fill;
+    }
+    .title-vein {
+      stroke: var(--branch-light);
+      stroke-width: 6px;
+      stroke-dasharray: 12 24;
+      opacity: 0.7;
+    }
+
+    .dash {
+      stroke-dasharray: var(--len, 1000);
+      stroke-dashoffset: var(--len, 1000);
+      animation: draw 3s ease forwards;
+    }
+
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  </style>
+</head>
+<body>
+  <div class="sticks-bg" aria-hidden="true" id="sticks"></div>
+
+  <main class="center">
+    <h1 class="sr-only">stick.wtf</h1>
+    <div class="title-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1400 300" role="img" aria-labelledby="titleDesc">
+        <title id="titleDesc">stick.wtf</title>
+        <text x="50%" y="55%" text-anchor="middle" class="title dash" id="titleMain">stick.wtf</text>
+        <text x="50%" y="55%" text-anchor="middle" class="title title-vein">stick.wtf</text>
+      </svg>
+    </div>
+  </main>
+
+  <a class="tg" href="https://t.me/catclassic" target="_blank" rel="noopener">t.me/catclassic</a>
+
+  <script>
+    (function() {
+      const t = document.getElementById('titleMain');
+      if (!t) return;
+      try {
+        const length = t.getComputedTextLength ? t.getComputedTextLength() : 1000;
+        t.style.setProperty('--len', Math.max(800, Math.floor(length * 1.5)));
+      } catch(e) {}
+    })();
+
+    (function() {
+      const root = document.getElementById('sticks');
+      const count = Math.min(70, Math.floor(window.innerWidth / 18));
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'stick-piece';
+        const len = 40 + Math.random()*140;
+        const x = Math.random() * window.innerWidth + 'px';
+        const y = Math.random() * window.innerHeight + 'px';
+        const rot = (Math.random() * 360).toFixed(2) + 'deg';
+        const delay = (Math.random() * 4).toFixed(2) + 's';
+        el.style.setProperty('--len', len + 'px');
+        el.style.setProperty('--x', x);
+        el.style.setProperty('--y', y);
+        el.style.setProperty('--rot', rot);
+        el.style.setProperty('--delay', delay);
+        root.appendChild(el);
+      }
+    })();
+  </script>
+</body>
+</html>
