@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stickman Card Battle</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #222; color: #fff; text-align: center; }
+    #gameWindow { width: 900px; height: 650px; margin: 40px auto; border: 3px solid #fff; border-radius: 12px; background: #111; padding: 20px; box-sizing: border-box; position: relative; overflow: hidden; }
+    #arena { display: flex; justify-content: space-around; margin-top: 40px; position: relative; }
+    .stickman { width: 120px; height: 220px; position: relative; }
+    .head { width: 50px; height: 50px; border: 4px solid #fff; border-radius: 50%; margin: 0 auto; background: #000; position: relative; z-index: 2; }
+    .torso { width: 6px; height: 80px; background: #fff; margin: 0 auto; position: relative; z-index: 1; }
+    .arm { width: 60px; height: 6px; background: #fff; position: absolute; top: 60px; transform-origin: left center; animation: idleArm 2s infinite ease-in-out; }
+    .arm.right { right: 50%; transform-origin: right center; }
+    .leg { width: 6px; height: 70px; background: #fff; position: absolute; top: 130px; transform-origin: top center; animation: idleLeg 2s infinite ease-in-out; }
+    .leg.left { left: 40px; }
+    .leg.right { right: 40px; }
+    .hp { position: absolute; top: -30px; left: 0; width: 100%; text-align: center; font-size: 18px; }
+    .cards { display: flex; justify-content: center; margin: 20px; }
+    .card { background: #444; border: 1px solid #999; border-radius: 8px; padding: 10px; margin: 5px; cursor: pointer; width: 120px; white-space: pre-line; }
+    .card:hover { background: #666; }
+    #log { margin-top: 20px; min-height: 60px; }
+    #timer { font-size: 22px; margin-top: 10px; }
+
+    /* Idle ragdoll-like physics */
+    @keyframes idleArm {
+      0%,100% { transform: rotate(15deg); }
+      50% { transform: rotate(-15deg); }
+    }
+    @keyframes idleLeg {
+      0%,100% { transform: rotate(5deg); }
+      50% { transform: rotate(-5deg); }
+    }
+
+    /* Hit and death animations */
+    .hit { animation: hitFlash 0.5s; }
+    .dead { animation: deathFall 1.5s forwards; }
+
+    @keyframes hitFlash {
+      0% { filter: brightness(3); }
+      100% { filter: brightness(1); }
+    }
+    @keyframes deathFall {
+      0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+      100% { transform: rotate(120deg) translateY(150px); opacity: 0.2; }
+    }
+
+    /* Realistic effects */
+    @keyframes fireballMove {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(400px); opacity: 0; }
+    }
+    @keyframes lightningStrike {
+      0% { opacity: 0; height: 0; }
+      50% { opacity: 1; height: 200px; }
+      100% { opacity: 0; height: 0; }
+    }
+    @keyframes meteorFall {
+      0% { transform: translateY(-400px) translateX(-200px) scale(0.5); opacity: 0; }
+      100% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+    }
+    @keyframes healGlow {
+      0% { box-shadow: 0 0 0px green; opacity: 1; }
+      50% { box-shadow: 0 0 20px lime; opacity: 1; }
+      100% { box-shadow: 0 0 0px green; opacity: 0; }
+    }
+    @keyframes shieldPulse {
+      0% { box-shadow: 0 0 0px cyan; }
+      50% { box-shadow: 0 0 25px cyan; }
+      100% { box-shadow: 0 0 0px cyan; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWindow">
+    <div id="arena">
+      <div class="stickman" id="p1">
+        <div class="hp" id="p1hp">HP: 30</div>
+        <div class="head"></div>
+        <div class="torso"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="stickman" id="p2">
+        <div class="hp" id="p2hp">HP: 30</div>
+        <div class="head"></div>
+        <div class="torso"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+    </div>
+
+    <div id="timer">Turn starts...</div>
+
+    <div class="cards" id="cardArea"></div>
+
+    <div id="log"></div>
+  </div>
+
+<script>
+const cards = [
+  { name: "Punch", dmg: 5, heal: 0, shield: 0, rarity: 1, anim: "attack" },
+  { name: "Kick", dmg: 7, heal: 0, shield: 0, rarity: 1, anim: "attack" },
+  { name: "Fireball", dmg: 10, heal: 0, shield: 0, rarity: 2, anim: "fireball" },
+  { name: "Shield", dmg: 0, heal: 0, shield: 5, rarity: 1, anim: "shield" },
+  { name: "Heal", dmg: 0, heal: 7, shield: 0, rarity: 1, anim: "heal" },
+  { name: "Super Strike", dmg: 15, heal: 0, shield: 0, rarity: 3, anim: "attack" },
+  { name: "Lightning Storm", dmg: 20, heal: 0, shield: 0, rarity: 4, anim: "lightning" },
+  { name: "Restoration", dmg: 0, heal: 15, shield: 0, rarity: 4, anim: "heal" },
+  { name: "Ice Shield", dmg: 0, heal: 0, shield: 15, rarity: 4, anim: "shield" },
+  { name: "Nuclear Blast", dmg: 30, heal: 0, shield: 0, rarity: 5, anim: "meteor" }
+];
+
+let p1 = { hp: 30, shield: 0 };
+let p2 = { hp: 30, shield: 0 };
+let currentPlayer = 1;
+let timer;
+let timeLeft = 30;
+let playedThisTurn = false;
+
+function log(msg){
+  document.getElementById("log").innerHTML = msg;
+}
+
+function updateUI(){
+  document.getElementById("p1hp").innerText = `HP: ${p1.hp} | 🛡${p1.shield}`;
+  document.getElementById("p2hp").innerText = `HP: ${p2.hp} | 🛡${p2.shield}`;
+}
+
+function getRandomCard(){
+  let weights = cards.map(c => 1 / c.rarity);
+  let sum = weights.reduce((a,b)=>a+b,0);
+  let rnd = Math.random() * sum;
+  let acc = 0;
+  for(let i=0;i<cards.length;i++){
+    acc += weights[i];
+    if(rnd <= acc) return cards[i];
+  }
+  return cards[0];
+}
+
+function randomCards(){
+  let chosen = [];
+  while(chosen.length < 3){
+    let c = getRandomCard();
+    if(!chosen.some(x => x.name === c.name)){
+      chosen.push(c);
+    }
+  }
+  return chosen;
+}
+
+function startTurn(){
+  timeLeft = 30;
+  playedThisTurn = false;
+  document.getElementById("timer").innerText = `Player ${currentPlayer}'s turn - time left: ${timeLeft}s`;
+  let playerCards = randomCards();
+  let area = document.getElementById("cardArea");
+  area.innerHTML = "";
+  playerCards.forEach(c=>{
+    let el = document.createElement("div");
+    el.className = "card";
+    let text = `${c.name}`;
+    if(c.dmg>0) text += `\nDMG:${c.dmg}`;
+    if(c.heal>0) text += `\nHEAL:${c.heal}`;
+    if(c.shield>0) text += `\nSHD:${c.shield}`;
+    el.innerText = text;
+    el.onclick = ()=>playCard(c);
+    area.appendChild(el);
+  });
+
+  clearInterval(timer);
+  timer = setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").innerText = `Player ${currentPlayer}'s turn - time left: ${timeLeft}s`;
+    if(timeLeft<=0){
+      clearInterval(timer);
+      log(`⏰ Player ${currentPlayer} lost the turn!`);
+      endTurn();
+    }
+  },1000);
+}
+
+function createEffect(type, attackerDiv, defenderDiv){
+  let effect = document.createElement("div");
+  effect.style.position = "absolute";
+  effect.style.top = attackerDiv.offsetTop+"px";
+  effect.style.left = attackerDiv.offsetLeft+"px";
+  effect.style.width = "40px";
+  effect.style.height = "40px";
+
+  if(type==="fireball"){
+    effect.style.background = "orange";
+    effect.style.borderRadius = "50%";
+    effect.style.animation = "fireballMove 1s forwards";
+  }
+  if(type==="lightning"){
+    effect.style.background = "yellow";
+    effect.style.width = "5px";
+    effect.style.height = "150px";
+    effect.style.animation = "lightningStrike 0.5s";
+    effect.style.left = defenderDiv.offsetLeft+"px";
+  }
+  if(type==="meteor"){
+    effect.style.background = "red";
+    effect.style.width = "60px";
+    effect.style.height = "60px";
+    effect.style.borderRadius = "50%";
+    effect.style.animation = "meteorFall 1s forwards";
+    effect.style.left = defenderDiv.offsetLeft+"px";
+  }
+  if(type==="heal"){
+    effect.style.background = "lime";
+    effect.style.borderRadius = "50%";
+    effect.style.opacity = "0.7";
+    effect.style.animation = "healGlow 1s";
+    effect.style.left = attackerDiv.offsetLeft+"px";
+  }
+  if(type==="shield"){
+    effect.style.background = "cyan";
+    effect.style.borderRadius = "50%";
+    effect.style.opacity = "0.5";
+    effect.style.animation = "shieldPulse 1s infinite";
+    effect.style.left = attackerDiv.offsetLeft+"px";
+  }
+
+  document.getElementById("gameWindow").appendChild(effect);
+  setTimeout(()=>effect.remove(),1200);
+}
+
+function playCard(card){
+  if(playedThisTurn) return;
+  playedThisTurn = true;
+
+  clearInterval(timer);
+  let attacker = currentPlayer===1 ? p1 : p2;
+  let defender = currentPlayer===1 ? p2 : p1;
+  let attackerDiv = document.getElementById(currentPlayer===1?"p1":"p2");
+  let defenderDiv = document.getElementById(currentPlayer===1?"p2":"p1");
+
+  let effectiveDmg = Math.max(0, card.dmg - defender.shield);
+  defender.shield = Math.max(0, defender.shield - card.dmg);
+
+  defender.hp -= effectiveDmg;
+  attacker.hp = Math.min(30, attacker.hp + card.heal);
+  attacker.shield += card.shield;
+
+  createEffect(card.anim, attackerDiv, defenderDiv);
+
+  if(effectiveDmg>0){
+    defenderDiv.classList.add("hit");
+    setTimeout(()=>defenderDiv.classList.remove("hit"),500);
+  }
+
+  setTimeout(()=>{
+    attackerDiv.classList.remove("attack","shield","heal");
+  },1000);
+
+  log(`Player ${currentPlayer} used ${card.name}! (${effectiveDmg} dmg, +${card.heal} hp, +${card.shield} shield)`);
+
+  updateUI();
+  if(defender.hp<=0){
+    defenderDiv.classList.add("dead");
+    log(`💀 Player ${currentPlayer} wins the game!`);
+    document.getElementById("cardArea").innerHTML = "";
+    return;
+  }
+  endTurn();
+}
+
+function endTurn(){
+  currentPlayer = currentPlayer===1?2:1;
+  setTimeout(startTurn, 2000);
+}
+
+updateUI();
+startTurn();
+</script>
+</body>
+</html>
