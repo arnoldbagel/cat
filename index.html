@@ -1,194 +1,175 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-export default function StickMain() {
-  const [mode, setMode] = useState(null); // "login" | "register" | null
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    // preload typing sound
-    audioRef.current = new Audio("/sounds/jelly-pop.mp3");
-    audioRef.current.volume = 0.4;
-  }, []);
-
-  const playTypingSound = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stick.wtf</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
     }
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
-
-    if (username === "catest" && password === "testuserinvite") {
-      setSuccess(true);
-      setTimeout(() => {
-        window.location.href = "/battle.html";
-      }, 1000);
-    } else {
-      setError("Credentials invalid");
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 2rem;
     }
-  };
+    h1 span {
+      color: #22c55e;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    button {
+      padding: 0.5rem 1.5rem;
+      border-radius: 1rem;
+      border: 2px solid #22c55e;
+      background: transparent;
+      color: #22c55e;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+    }
+    button:hover {
+      background: #22c55e;
+      color: black;
+    }
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: #18181b;
+      border: 1px solid #22c55e;
+      border-radius: 1rem;
+      padding: 2rem;
+      width: 350px;
+      box-shadow: 0 0 20px rgba(34,197,94,0.5);
+    }
+    .modal h2 {
+      color: #22c55e;
+      margin-bottom: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 0.8rem;
+      border-radius: 0.5rem;
+      border: 2px solid #16a34a;
+      background: #27272a;
+      color: #d1fae5;
+    }
+    input:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 5px #22c55e;
+      font-weight: 600;
+    }
+    .error {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .success {
+      color: #22c55e;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>stick<span>.wtf</span></h1>
+  <div class="buttons">
+    <button onclick="openModal('login')">Login</button>
+    <button onclick="openModal('register')">Register</button>
+  </div>
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-      <style jsx global>{`
-        input {
-          color: #d1fae5; /* better readable greenish text */
-        }
-        input:focus {
-          outline: none !important;
-          border-color: #22c55e !important; /* bright green */
-          box-shadow: 0 0 0 2px #22c55e80; /* subtle glow */
-          font-weight: 600;
-        }
-      `}</style>
-
-      {/* Branding */}
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-5xl font-bold mb-8 select-none"
-      >
-        stick<span className="text-green-400">.wtf</span>
-      </motion.h1>
-
-      {/* Buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="flex gap-4"
-      >
-        <Button
-          className="rounded-2xl px-6 py-2 bg-green-400 text-black hover:bg-green-500 shadow-lg"
-          onClick={() => setMode("login")}
-        >
-          Login
-        </Button>
-        <Button
-          className="rounded-2xl px-6 py-2 bg-transparent border border-green-400 hover:bg-green-400 hover:text-black shadow-lg"
-          onClick={() => setMode("register")}
-        >
-          Register
-        </Button>
-      </motion.div>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {mode && (
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 40 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 40 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="w-96 bg-zinc-900 border border-green-500/30 rounded-2xl shadow-2xl">
-                <CardContent className="p-6 space-y-4">
-                  <h2 className="text-2xl font-bold text-green-400 mb-4">
-                    {mode === "login" ? "Login" : "Register"}
-                  </h2>
-
-                  {mode === "login" ? (
-                    <form className="space-y-4" onSubmit={handleLogin}>
-                      <Input
-                        placeholder="Username"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        value={username}
-                        onChange={(e) => {
-                          setUsername(e.target.value);
-                          playTypingSound();
-                        }}
-                      />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          playTypingSound();
-                        }}
-                      />
-                      {error && (
-                        <p className="text-red-500 text-sm font-semibold animate-pulse">{error}</p>
-                      )}
-                      {success && (
-                        <p className="text-green-400 text-sm font-semibold animate-pulse">Login successful</p>
-                      )}
-                      <Button
-                        type="submit"
-                        className="w-full bg-green-400 text-black hover:bg-green-500 rounded-xl"
-                      >
-                        Enter
-                      </Button>
-                    </form>
-                  ) : (
-                    <form className="space-y-4">
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        onChange={playTypingSound}
-                      />
-                      <Input
-                        placeholder="Username"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        onChange={playTypingSound}
-                      />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        onChange={playTypingSound}
-                      />
-                      <Input
-                        placeholder="Invite Code"
-                        className="bg-zinc-800 border-green-500/30 focus:border-green-500 focus:ring-0 text-green-100"
-                        onChange={playTypingSound}
-                      />
-                      <Button className="w-full bg-green-400 text-black hover:bg-green-500 rounded-xl">
-                        Sign Up
-                      </Button>
-                    </form>
-                  )}
-
-                  <Button
-                    variant="ghost"
-                    className="w-full text-sm text-zinc-400 hover:text-white mt-2"
-                    onClick={() => {
-                      setMode(null);
-                      setError(null);
-                      setSuccess(false);
-                      setUsername("");
-                      setPassword("");
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+  <div id="modal-bg" class="modal-bg" style="display:none;">
+    <div class="modal">
+      <h2 id="modal-title">Login</h2>
+      <div id="messages"></div>
+      <form id="login-form" style="display:none;" onsubmit="return handleLogin(event)">
+        <input type="text" id="login-username" placeholder="Username" />
+        <input type="password" id="login-password" placeholder="Password" />
+        <button type="submit">Enter</button>
+      </form>
+      <form id="register-form" style="display:none;" onsubmit="return handleRegister(event)">
+        <input type="email" id="register-email" placeholder="Email" />
+        <input type="text" id="register-username" placeholder="Username" />
+        <input type="password" id="register-password" placeholder="Password" />
+        <input type="text" id="register-invite" placeholder="Invite Code" />
+        <button type="submit">Sign Up</button>
+      </form>
+      <button onclick="closeModal()">Cancel</button>
     </div>
-  );
-}
+  </div>
+
+  <script>
+    let currentMode = null;
+    function openModal(mode) {
+      currentMode = mode;
+      document.getElementById('modal-bg').style.display = 'flex';
+      document.getElementById('messages').innerHTML = '';
+      if (mode === 'login') {
+        document.getElementById('modal-title').innerText = 'Login';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+      } else {
+        document.getElementById('modal-title').innerText = 'Register';
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+      }
+    }
+    function closeModal() {
+      document.getElementById('modal-bg').style.display = 'none';
+    }
+    function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-username').value;
+      const pass = document.getElementById('login-password').value;
+      const messages = document.getElementById('messages');
+      messages.innerHTML = '';
+
+      if (user === 'catest' && pass === 'testuserinvite') {
+        messages.innerHTML = '<p class="success">Login successful</p>';
+        setTimeout(() => {
+          window.location.href = 'battle.html';
+        }, 1000);
+      } else {
+        messages.innerHTML = '<p class="error">Credentials invalid</p>';
+      }
+      return false;
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const invite = document.getElementById('register-invite').value.trim();
+      const messages = document.getElementById('messages');
+      messages.innerHTML = '';
+
+      if (invite === 'bnzwx13') {
+        messages.innerHTML = '<p class="success">Registration successful</p>';
+      } else {
+        messages.innerHTML = '<p class="error">Registration invalid: wrong invite code</p>';
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>
