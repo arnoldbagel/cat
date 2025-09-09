@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/battle",
+      "destination": "/battle.html",
+      "permanent": true
+    }
+  ]
+}
