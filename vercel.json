@@ -1,9 +1,10 @@
 {
   "redirects": [
     {
-      "source": "/xavier",
-      "destination": "/xavier.html",
+      "source": "/battle",
+      "destination": "/battle.html",
       "permanent": true
     }
   ]
 }
+
