@@ -2,6 +2,7 @@
   "redirects": [
     { "source": "/battle", "destination": "/battle.html", "permanent": true },
     { "source": "/stick", "destination": "user/stick.html", "permanent": true },
-    { "source": "/bar", "destination": "/bar.html", "permanent": true }
+    { "source": "user/stick", "destination": "user/stick.html", "permanent": true }
   ]
 }
+
