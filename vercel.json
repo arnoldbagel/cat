@@ -3,9 +3,12 @@
     { "source": "/battle", "destination": "/battle.html", "permanent": true },
     { "source": "/stick", "destination": "user/stick.html", "permanent": true },
     { "source": "/user/stick", "destination": "user/stick.html", "permanent": true },
-    { "source": "/user/index.html", "destination": "/index.html", "permanent": true }
+    { "source": "/user/index.html", "destination": "/index.html", "permanent": true },
+    { "source": "/1", "destination": "/user/stick.html", "permanent": true },
+    { "source": "/user/1", "destination": "/user/stick.html.html", "permanent": true }
   ]
 }
+
 
 
 
