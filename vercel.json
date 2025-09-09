@@ -1,9 +1,8 @@
 {
-  "cleanUrls": true,
   "redirects": [
     {
-      "source": "/battle",
-      "destination": "/battle.html",
+      "source": "/xavier",
+      "destination": "/xavier.html",
       "permanent": true
     }
   ]
