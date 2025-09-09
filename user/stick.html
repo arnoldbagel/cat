@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Sea Glass Profile</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 30%, #001f3f, #000814 80%);
+      color: white;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+      opacity: 0.08;
+      animation: drift 60s linear infinite;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    .global-logo {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: rgba(0, 153, 255, 0.2);
+      color: #e0f7fa;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      font-weight: bold;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 16px rgba(0, 153, 255, 0.3);
+      transition: background 0.3s, transform 0.2s;
+      z-index: 10;
+    }
+    .global-logo:hover {
+      background: rgba(0, 153, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .card {
+      width: 360px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: rgba(0, 51, 102, 0.45);
+      backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      padding: 24px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .card::-webkit-scrollbar { width: 8px; }
+    .card::-webkit-scrollbar-track { background: rgba(0, 51, 102, 0.6); }
+    .card::-webkit-scrollbar-thumb { background: #00bcd4; border-radius: 10px; }
+
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(0, 200, 255, 0.8);
+      margin: 10px auto 0;
+      box-shadow: 0 6px 16px rgba(0, 200, 255, 0.5);
+      transition: transform 0.4s, box-shadow 0.4s;
+      position: relative;
+    }
+    .profile-pic:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 24px rgba(0, 200, 255, 0.7);
+    }
+    .profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-pic::after {
+      content: attr(data-text);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 51, 102, 0.6);
+      color: #e0f7fa;
+      font-size: 0.85rem;
+      padding: 4px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      backdrop-filter: blur(6px);
+    }
+    .profile-pic:hover::after { opacity: 1; }
+
+    .placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 50, 0.6);
+      height: 100%;
+      color: #80deea;
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 14px 0 6px;
+      color: #e0f7fa;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .uid {
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(0, 200, 255, 0.5);
+      border-radius: 12px;
+      padding: 4px 10px;
+      background: rgba(0, 153, 255, 0.15);
+      backdrop-filter: blur(6px);
+      color: #b2ebf2;
+    }
+
+    .online-dot {
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #22c55e;
+    }
+
+    .btn-message-inline {
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      background: rgba(0, 153, 255, 0.25);
+      color: #e0f7fa;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 10px rgba(0,200,255,0.4);
+      transition: transform 0.2s, background 0.3s;
+    }
+    .btn-message-inline:hover {
+      background: rgba(0, 153, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .bio {
+      margin: 14px 0;
+      font-size: 0.9rem;
+      color: #cfd8dc;
+      line-height: 1.4;
+    }
+
+    .content-gallery {
+      margin: 16px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 14px;
+    }
+    .content-gallery img {
+      width: 100%;
+      height: 140px;
+      border-radius: 14px;
+      object-fit: cover;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .content-gallery img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 18px rgba(0,200,255,0.5);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="global-logo">stick.wtf</a>
+  <div class="card">
+    <div class="profile-pic" data-text="Profile Picture">
+      <img src="" alt="Profile Picture" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder\'>👤</div>'" />
+    </div>
+    <h2>Stick</h2>
+    <div class="header-row">
+      <p class="uid"><span class="online-dot"></span> UID: 1</p>
+      <button class="btn-message-inline">Message</button>
+    </div>
+    <p class="bio">This is a short bio text area where you can describe yourself or add some details.</p>
+
+    <div class="content-gallery">
+      <img src="https://via.placeholder.com/150" alt="pic1" />
+      <img src="https://via.placeholder.com/150" alt="pic2" />
+      <img src="https://via.placeholder.com/150" alt="pic3" />
+      <img src="https://via.placeholder.com/150" alt="pic4" />
+    </div>
+  </div>
+</body>
+</html>
