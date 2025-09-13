@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   <title>stick.wtf</title>
   <style>
     body {
@@ -17,80 +17,78 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 2rem;
-    }
-    h1 span {
-      color: #22c55e;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      margin-top: 1rem;
-    }
+    h1 { font-size: 2.5rem; margin-bottom: 2rem; }
+    h1 span { color: #22c55e; }
+
+    .buttons { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
     button {
-      padding: 0.5rem 1.5rem;
-      border-radius: 1rem;
-      border: 2px solid #22c55e;
-      background: transparent;
-      color: #22c55e;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 120px;
+      padding: 0.6rem 1.2rem; border-radius: 1rem; border: 2px solid #22c55e; background: transparent; color: #22c55e;
+      font-weight: bold; cursor: pointer; transition: all 0.3s ease; min-width: 100px; margin-top: 0.5rem; font-size: 1rem;
     }
-    button:hover {
-      background: #22c55e;
-      color: black;
-    }
-    .modal-bg {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    button:hover { background: #22c55e; color: black; }
+
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; touch-action: none; }
     .modal {
-      background: #18181b;
-      border: 1px solid #22c55e;
-      border-radius: 1rem;
-      padding: 2rem;
-      width: 350px;
-      box-shadow: 0 0 20px rgba(34,197,94,0.5);
+      background: #18181b; border: 1px solid #22c55e; border-radius: 1rem; padding: 1.5rem; width: 100%; max-width: 400px;
+      box-shadow: 0 0 20px rgba(34,197,94,0.5); display: flex; flex-direction: column; align-items: center;
+      animation: slideUp 0.3s ease forwards;
     }
-    .modal h2 {
-      color: #22c55e;
-      margin-bottom: 1rem;
+    .modal.apply { max-width: 600px; }
+    .modal h2 { color: #22c55e; margin-bottom: 1rem; font-size: 1.4rem; text-align: center; }
+
+    .modal form { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+    input, textarea {
+      width: 100%; max-width: 320px; padding: 0.6rem; margin: 0.4rem 0 0.8rem 0; border-radius: 0.5rem; border: 2px solid #16a34a;
+      background: #27272a; color: #d1fae5; font-size: 1rem; text-align: left;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    input {
-      width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 0.8rem;
-      border-radius: 0.5rem;
-      border: 2px solid #16a34a;
-      background: #27272a;
-      color: #d1fae5;
+    textarea { min-height: 100px; resize: vertical; }
+    input:focus, textarea:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 5px #22c55e; }
+
+    .error { color: #ef4444; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .success { color: #22c55e; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .modal form button, .modal > button.cancel-btn { margin-top: 1rem; width: 100%; max-width: 320px; }
+
+    /* Center helper text */
+    .apply-note {
+      display: block;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 0.4rem;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    input:focus {
-      outline: none;
-      border-color: #22c55e;
-      box-shadow: 0 0 5px #22c55e;
-      font-weight: 600;
+
+    /* Shake animation for errors */
+    .shake { animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
     }
-    .error {
-      color: #ef4444;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
+
+    /* Bottom-right call-to-action */
+    .floating-cta {
+      position: fixed; right: 16px; bottom: 16px; background: #22c55e; color: #000;
+      border: none; border-radius: 999px; padding: 0.7rem 1rem; font-weight: 800;
+      cursor: pointer; box-shadow: 0 6px 18px rgba(34,197,94,0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease; font-size: 0.9rem;
     }
-    .success {
-      color: #22c55e;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
+    .floating-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(34,197,94,0.45); }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2rem; }
+      button { min-width: 90px; font-size: 0.9rem; padding: 0.5rem 1rem; }
+      .modal { padding: 1rem; max-width: 92vw; }
+      .modal.apply { max-width: 92vw; }
+      textarea { min-height: 80px; }
     }
+
+    /* Animations */
+    @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(40px); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -100,59 +98,114 @@
     <button onclick="openModal('register')">Register</button>
   </div>
 
+  <!-- Bottom-right Floating CTA -->
+  <button class="floating-cta" onclick="openModal('apply')">Want your own page?</button>
+
   <div id="modal-bg" class="modal-bg" style="display:none;">
-    <div class="modal">
+    <div id="modal" class="modal">
       <h2 id="modal-title">Login</h2>
       <div id="messages"></div>
+
+      <!-- LOGIN -->
       <form id="login-form" style="display:none;" onsubmit="return handleLogin(event)">
         <input type="text" id="login-username" placeholder="Username" />
         <input type="password" id="login-password" placeholder="Password" />
         <button type="submit">Enter</button>
+        <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
       </form>
+
+      <!-- REGISTER -->
       <form id="register-form" style="display:none;" onsubmit="return handleRegister(event)">
         <input type="email" id="register-email" placeholder="Email" />
         <input type="text" id="register-username" placeholder="Username" />
         <input type="password" id="register-password" placeholder="Password" />
         <input type="text" id="register-invite" placeholder="Invite Code" />
         <button type="submit">Sign Up</button>
+        <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
       </form>
-      <button onclick="closeModal()">Cancel</button>
+
+      <!-- APPLY FOR OWN PAGE -->
+      <form id="apply-form" style="display:none;" onsubmit="return handleApply(event)">
+        <input type="text" id="apply-name" placeholder="Your name (optional)" />
+        <input type="email" id="apply-email" placeholder="Your email (required)" />
+        <input type="text" id="apply-title" placeholder="Proposed page title/url (required)" />
+        <textarea id="apply-html" placeholder="Paste your HTML here"></textarea>
+        <textarea id="apply-css" placeholder="Paste your CSS here"></textarea>
+        <textarea id="apply-js" placeholder="(Optional) Paste JS or other notes"></textarea>
+        <small class="apply-note">Send your code for verification to <span style="color:#22c55e">stickverify@gmail.com</span>. It’s completely FREE.</small>
+        <button type="submit">Send Application</button>
+        <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+      </form>
     </div>
   </div>
 
   <script>
-    let currentMode = null;
+    let touchStartY = 0;
+
+    document.getElementById('modal-bg').addEventListener('touchstart', (e) => {
+      touchStartY = e.changedTouches[0].screenY;
+    });
+
+    document.getElementById('modal-bg').addEventListener('touchend', (e) => {
+      let touchEndY = e.changedTouches[0].screenY;
+      if (touchEndY - touchStartY > 100) { closeModal(); }
+    });
+
     function openModal(mode) {
-      currentMode = mode;
-      document.getElementById('modal-bg').style.display = 'flex';
-      document.getElementById('messages').innerHTML = '';
+      const bg = document.getElementById('modal-bg');
+      const modal = document.getElementById('modal');
+      const title = document.getElementById('modal-title');
+      const msg = document.getElementById('messages');
+      const loginF = document.getElementById('login-form');
+      const regF = document.getElementById('register-form');
+      const applyF = document.getElementById('apply-form');
+
+      bg.style.display = 'flex';
+      msg.innerHTML = '';
+      modal.classList.remove('apply', 'shake');
+      modal.style.animation = 'slideUp 0.3s ease forwards';
+
       if (mode === 'login') {
-        document.getElementById('modal-title').innerText = 'Login';
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-      } else {
-        document.getElementById('modal-title').innerText = 'Register';
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
+        title.innerText = 'Login';
+        loginF.style.display = 'block';
+        regF.style.display = 'none';
+        applyF.style.display = 'none';
+      } else if (mode === 'register') {
+        title.innerText = 'Register';
+        loginF.style.display = 'none';
+        regF.style.display = 'block';
+        applyF.style.display = 'none';
+      } else if (mode === 'apply') {
+        title.innerText = 'Apply for your own page';
+        loginF.style.display = 'none';
+        regF.style.display = 'none';
+        applyF.style.display = 'block';
+        modal.classList.add('apply');
       }
     }
+
     function closeModal() {
-      document.getElementById('modal-bg').style.display = 'none';
+      const bg = document.getElementById('modal-bg');
+      const modal = document.getElementById('modal');
+      modal.style.animation = 'slideDown 0.3s ease forwards';
+      setTimeout(() => { bg.style.display = 'none'; }, 300);
     }
+
     function handleLogin(e) {
       e.preventDefault();
       const user = document.getElementById('login-username').value;
       const pass = document.getElementById('login-password').value;
       const messages = document.getElementById('messages');
+      const modal = document.getElementById('modal');
       messages.innerHTML = '';
 
-      if (user === 'catest' && pass === 'testuserinvite') {
+      if (user === 'cat' && pass === 'testuserinvite') {
         messages.innerHTML = '<p class="success">Login successful</p>';
-        setTimeout(() => {
-          window.location.href = 'battle.html';
-        }, 1000);
+        setTimeout(() => { window.location.href = 'battle.html'; }, 1000);
       } else {
         messages.innerHTML = '<p class="error">Credentials invalid</p>';
+        modal.classList.add('shake');
+        setTimeout(() => modal.classList.remove('shake'), 500);
       }
       return false;
     }
@@ -161,13 +214,46 @@
       e.preventDefault();
       const invite = document.getElementById('register-invite').value.trim();
       const messages = document.getElementById('messages');
+      const modal = document.getElementById('modal');
       messages.innerHTML = '';
 
       if (invite === 'bnzwx13') {
         messages.innerHTML = '<p class="success">Registration successful</p>';
       } else {
         messages.innerHTML = '<p class="error">Registration invalid: wrong invite code</p>';
+        modal.classList.add('shake');
+        setTimeout(() => modal.classList.remove('shake'), 500);
       }
+      return false;
+    }
+
+    function handleApply(e) {
+      e.preventDefault();
+      const email = document.getElementById('apply-email').value.trim();
+      const messages = document.getElementById('messages');
+      const modal = document.getElementById('modal');
+      messages.innerHTML = '';
+
+      if (!email) {
+        messages.innerHTML = '<p class="error">Please enter a valid email so we can contact you.</p>';
+        modal.classList.add('shake');
+        setTimeout(() => modal.classList.remove('shake'), 500);
+        return false;
+      }
+
+      const name = document.getElementById('apply-name').value.trim();
+      const title = document.getElementById('apply-title').value.trim();
+      const html = document.getElementById('apply-html').value;
+      const css = document.getElementById('apply-css').value;
+      const js = document.getElementById('apply-js').value;
+
+      const subject = encodeURIComponent(`Page Application - ${title || 'Untitled'}`);
+      const body = encodeURIComponent(
+        `Applicant: ${name || 'Anonymous'}\nEmail: ${email}\nTitle: ${title || 'Untitled'}\n\n--- HTML ---\n${html}\n\n--- CSS ---\n${css}\n\n--- JS/Notes ---\n${js}\n\n(Free submission via stick.wtf)`
+      );
+
+      window.location.href = `mailto:stickverify@gmail.com?subject=${subject}&body=${body}`;
+      messages.innerHTML = '<p class="success">Opening your email client with the application details…</p>';
       return false;
     }
   </script>
